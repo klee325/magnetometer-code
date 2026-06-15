@@ -13,3 +13,6 @@ pyqtgraph.live
 - Live plotting of per-second values for bx, by, bz and total magnetic field using pyqtgraph. Time is seconds from start of code. 
 
 Note: when saving live plots, save them as .svg files to preserve image quality. 
+
+All outputs in nanotesla (50000 nT per volt).
+To change to microtesla change the SENSITIVITY to 50 (50 µT per volt).
