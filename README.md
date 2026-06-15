@@ -15,4 +15,4 @@ pyqtgraph.live
 Note: when saving live plots, save them as .svg files to preserve image quality. 
 
 All outputs in nanotesla (50000 nT per volt).
-To change to microtesla change the SENSITIVITY to 50 (50 µT per volt).
+To change to microtesla, change the SENSITIVITY to 50 (50 µT per volt).
