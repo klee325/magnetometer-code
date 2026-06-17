@@ -1,0 +1,118 @@
+import sys
+import time
+import numpy as np
+from ADCDifferentialPi import ADCDifferentialPi
+import pyqtgraph as pg
+from pyqtgraph import DateAxisItem
+from pyqtgraph.Qt import QtWidgets, QtCore
+
+SENSITIVITY = 50000  # nT per volt
+
+# Offsets (adjust after calibration)
+OFFSET_1 = 0.0
+OFFSET_2 = 0.0
+OFFSET_3 = 0.0
+
+# Display only the last 60 seconds
+WINDOW_SECONDS = 60
+
+adc = ADCDifferentialPi(0x68, 0x69, 18)
+
+# -----------------------------
+# Data storage
+# -----------------------------
+values1, values2, values3, values_total = [], [], [], []
+times = []
+
+# -----------------------------
+# Qt App setup
+# -----------------------------
+app = QtWidgets.QApplication(sys.argv)
+
+win = pg.GraphicsLayoutWidget(show=True)
+win.setWindowTitle("Magnetometer Live Stream")
+
+# Create 4 plots (LOCAL TIME)
+axis = DateAxisItem(utc=False)
+p1 = win.addPlot(title="X Component", axisItems={'bottom': axis})
+win.nextRow()
+
+axis = DateAxisItem(utc=False)
+p2 = win.addPlot(title="Y Component", axisItems={'bottom': axis})
+win.nextRow()
+
+axis = DateAxisItem(utc=False)
+p3 = win.addPlot(title="Z Component", axisItems={'bottom': axis})
+win.nextRow()
+
+axis = DateAxisItem(utc=False)
+p4 = win.addPlot(title="Total Field", axisItems={'bottom': axis})
+
+curve1 = p1.plot(pen='r')
+curve2 = p2.plot(pen='g')
+curve3 = p3.plot(pen='b')
+curve4 = p4.plot(pen='w')
+
+p1.setLabel('left', 'Bx (nT)')
+p2.setLabel('left', 'By (nT)')
+p3.setLabel('left', 'Bz (nT)')
+p4.setLabel('left', 'Total (nT)')
+p4.setLabel('bottom', 'Local Time')
+
+# Enable automatic Y-axis scaling
+for p in (p1, p2, p3, p4):
+    p.enableAutoRange(axis='y')
+
+# -----------------------------
+# Update function
+# -----------------------------
+def update():
+    global values1, values2, values3, values_total, times
+
+    current_time = time.time()
+
+    # Read magnetometer
+    bx = (adc.read_voltage(1) - OFFSET_1) * SENSITIVITY
+    by = (adc.read_voltage(2) - OFFSET_2) * SENSITIVITY
+    bz = (adc.read_voltage(3) - OFFSET_3) * SENSITIVITY
+
+    b_total = np.sqrt(bx**2 + by**2 + bz**2)
+
+    # Store data
+    times.append(current_time)
+    values1.append(bx)
+    values2.append(by)
+    values3.append(bz)
+    values_total.append(b_total)
+
+    # Remove data older than 60 seconds
+    cutoff = current_time - WINDOW_SECONDS
+
+    while times and times[0] < cutoff:
+        times.pop(0)
+        values1.pop(0)
+        values2.pop(0)
+        values3.pop(0)
+        values_total.pop(0)
+
+    # Update plots
+    curve1.setData(times, values1)
+    curve2.setData(times, values2)
+    curve3.setData(times, values3)
+    curve4.setData(times, values_total)
+
+    # Keep X-axis showing exactly the last 60 seconds
+    for p in (p1, p2, p3, p4):
+        p.setXRange(cutoff, current_time, padding=0)
+
+# -----------------------------
+# Timer
+# -----------------------------
+timer = QtCore.QTimer()
+timer.timeout.connect(update)
+timer.start(1000)  # update every 1 second
+
+# -----------------------------
+# Run
+# -----------------------------
+sys.exit(app.exec())
