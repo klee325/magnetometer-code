@@ -10,7 +10,10 @@ print.values
 - Prints per-second bx, by, bz and total magnetic field reading directly into the terminal.
 
 pyqtgraph.live
-- Live plotting of per-second values for bx, by, bz and total magnetic field using pyqtgraph. Time is linked to local device time. 
+- Live plotting of per-second values for bx, by, bz and total magnetic field using pyqtgraph. Time is linked to local device time.
+
+pyqtgraph.live.1min
+- Live plotting of per-second values for bx, by, bz and total magnetic field using pyqtgraph in a 1 minute rolling window. Time is linked to local device time.
 
 Note: when saving live plots, save them as .svg files to preserve image quality. 
 
