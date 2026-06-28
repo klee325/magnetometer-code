@@ -4,7 +4,7 @@ csv.and.plot
 - Records per second bx, by, bz and total magnetic field measures in daily csv files stored in a folder called 'data'. Live plotting of minute average values using matplotlib. UTC time. 
 
 csv.log
-- Records per second bx, by, bz and total magnetic field measures in daily csv files stored in a folder called 'data' (no live plotting). UTC time.
+- Records per second bx, by, bz and total magnetic field measures in daily csv files stored in a folder called 'data' (no live plotting). UTC time. NOTE: data is only logged every 2 seconds because there is a 1 second processing + 1 second sleep.
 
 print.values
 - Prints per-second bx, by, bz and total magnetic field reading directly into the terminal.
